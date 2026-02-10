@@ -6,6 +6,7 @@ export interface BookingForm {
   fullName: string;
   phoneNumber: string;
   appointmentDate: string;
+  appointmentTime: string;
 }
 
 export const COMPANY_INFO = {

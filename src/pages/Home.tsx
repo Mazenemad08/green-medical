@@ -40,7 +40,8 @@ import { collection, getDocs } from "firebase/firestore";
 const bookingSchema = z.object({
   fullName: z.string().min(3, "يرجى إدخال الاسم الكامل"),
   phoneNumber: z.string().min(8, "يرجى إدخال رقم هاتف صحيح"),
-  appointmentDate: z.string().min(1, "يرجى اختيار الموعد"),
+  appointmentDate: z.string().min(1, "يرجى اختيار تاريخ الموعد"),
+  appointmentTime: z.string().min(1, "يرجى اختيار الوقت"),
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
@@ -69,18 +70,88 @@ type ImageSrcMap = {
 };
 
 export default function Home() {
+  const SLOT_START_HOUR = 10;
+  const SLOT_END_HOUR = 14;
+  const SLOT_INTERVAL_MINUTES = 20; // 15 min session + 5 min buffer
+  const SLOT_DURATION_MINUTES = 15;
+
+  const toLocalDateInputValue = (date: Date) => {
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 10);
+  };
+
+  const timeFormatter = useMemo(
+    () => new Intl.DateTimeFormat("ar", { hour: "numeric", minute: "2-digit", hour12: true }),
+    []
+  );
+
+  const slotOptions = useMemo(() => {
+    const slots: { value: string; label: string }[] = [];
+    const startMinutes = SLOT_START_HOUR * 60;
+    const endMinutes = SLOT_END_HOUR * 60;
+
+    for (
+      let minutes = startMinutes;
+      minutes + SLOT_DURATION_MINUTES <= endMinutes;
+      minutes += SLOT_INTERVAL_MINUTES
+    ) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      const value = `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+      const labelDate = new Date();
+      labelDate.setHours(hours, mins, 0, 0);
+      slots.push({ value, label: timeFormatter.format(labelDate) });
+    }
+
+    return slots;
+  }, [SLOT_DURATION_MINUTES, SLOT_END_HOUR, SLOT_INTERVAL_MINUTES, SLOT_START_HOUR, timeFormatter]);
+
+  const todayInput = useMemo(() => toLocalDateInputValue(new Date()), []);
+
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       fullName: "",
       phoneNumber: "",
       appointmentDate: "",
+      appointmentTime: "",
     },
   });
 
-  const onSubmit = (data: BookingFormValues) => {
-    console.log("Booking Data:", data);
-    alert("تم استلام طلبك بنجاح، سنتواصل معك قريباً لتأكيد الموعد.");
+  const onSubmit = async (data: BookingFormValues) => {
+    const endpoint = import.meta.env.VITE_BOOKING_ENDPOINT as string | undefined;
+    if (!endpoint) {
+      alert("تعذر إرسال الطلب حالياً. الرجاء المحاولة لاحقاً.");
+      return;
+    }
+
+    const appointmentDateTime = `${data.appointmentDate}T${data.appointmentTime}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: data.fullName,
+          phoneNumber: data.phoneNumber,
+          appointmentDate: appointmentDateTime,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result?.ok) {
+        throw new Error(result?.error || "Booking failed");
+      }
+
+      alert("تم استلام طلبك بنجاح، سنتواصل معك قريباً لتأكيد الموعد.");
+      form.reset();
+    } catch (error) {
+      console.error("Booking submission failed", error);
+      alert("تعذر إرسال الطلب حالياً. الرجاء المحاولة لاحقاً.");
+    }
   };
 
   const scrollToBooking = () => {
@@ -156,7 +227,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      {/* القسم الأول: مقدمة الصفحة */}
+      {/* Intro */}
       <section id="hero" className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -231,7 +302,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* القسم الثاني: خدماتنا */}
+
+      {/* Service Section*/}
       <section id="services" className="py-20 bg-primary/5">
         <div className="container mx-auto px-4">
           <motion.div
@@ -269,7 +341,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* القسم الثالث: حجز الاستشارة المجانية أونلاين */}
+      {/* Consultation Section */}
       <section id="consultation" className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -339,7 +411,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* القسم الرابع: نموذج الحجز ومعلومات التواصل */}
+      {/* Booking Section */}
       <section id="booking" className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
@@ -356,62 +428,14 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-white rounded-3xl p-8 shadow-2xl text-foreground">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-primary" /> الاسم الكامل
-                          </FormLabel>
-                          <FormControl>
-                            <Input placeholder="ادخل اسمك الثلاثي" {...field} className="h-12 border-primary/20 focus:border-primary" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-primary" /> رقم الهاتف
-                          </FormLabel>
-                          <FormControl>
-                            <Input placeholder="0000 000 00" {...field} className="h-12 border-primary/20 focus:border-primary" dir="ltr" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="appointmentDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-primary" /> اختيار الموعد
-                          </FormLabel>
-                          <FormControl>
-                            <Input type="datetime-local" {...field} className="h-12 border-primary/20 focus:border-primary" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      type="submit"
-                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-14 text-xl rounded-xl shadow-lg transition-transform active:scale-95"
-                    >
-                      تأكيد حجز الاستشارة المجانية
-                    </Button>
-                  </form>
-                </Form>
+              <div className="bg-white rounded-3xl p-4 shadow-2xl text-foreground">
+                <iframe
+                  src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0zCcIWVH9hx6GdhTqI2Q-ruUuPJ2iJu63ABiX5LSJCwdirioM79-oW4k_vSb_V9__sUdbm5KFT?gv=true"
+                  className="w-full rounded-2xl"
+                  style={{ border: 0, minHeight: "800px" }}
+                  title="حجز موعد"
+                  loading="lazy"
+                />
               </div>
             </motion.div>
 
