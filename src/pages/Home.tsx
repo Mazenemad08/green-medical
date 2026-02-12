@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   Clock,
   Camera,
-  Video,
   Phone,
   User,
   Calendar,
@@ -17,6 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 import { IMAGES } from "@/assets/images";
+import heroMainImage from "@/assets/02.jpg";
+import heroDetailImage from "@/assets/03.jpg";
+import consultationVideo from "@/assets/horisntal.mp4";
+import bookingImage from "@/assets/03.jpg";
 import {
   SERVICES_LIST,
   CONSULTATION_DETAILS,
@@ -57,7 +60,6 @@ const IMAGE_KEYS = {
   HERO_MAIN: "HERO_MAIN",
   HERO_DETAIL: "HERO_DETAIL",
   SERVICES_IMAGE: "SERVICES_IMAGE",
-  CONSULTATION_VIDEO_IMAGE: "CONSULTATION_VIDEO_IMAGE",
   TEAM_IMAGE: "TEAM_IMAGE",
 } as const;
 
@@ -65,7 +67,6 @@ type ImageSrcMap = {
   heroMain: string | null;
   heroDetail: string | null;
   services: string | null;
-  consultationVideo: string | null;
   team: string | null;
 };
 
@@ -165,9 +166,9 @@ export default function Home() {
     heroMain: true,
     heroDetail: true,
     services: true,
-    consultationVideo: true,
     team: true,
   });
+  const consultationVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -200,10 +201,9 @@ export default function Home() {
     const get = (key: string, fallback: string) =>
       remoteImages[key]?.url ?? (isImagesLoading ? null : fallback);
     return {
-      heroMain: get(IMAGE_KEYS.HERO_MAIN, IMAGES.WHEELCHAIR_USERS_5),
-      heroDetail: get(IMAGE_KEYS.HERO_DETAIL, IMAGES.WHEELCHAIR_USERS_2),
+      heroMain: heroMainImage,
+      heroDetail: heroDetailImage,
       services: get(IMAGE_KEYS.SERVICES_IMAGE, IMAGES.MEDICAL_EQUIPMENT_1),
-      consultationVideo: get(IMAGE_KEYS.CONSULTATION_VIDEO_IMAGE, IMAGES.ONLINE_CONSULTATION_2),
       team: get(IMAGE_KEYS.TEAM_IMAGE, IMAGES.ONLINE_CONSULTATION_3),
     };
   }, [remoteImages, isImagesLoading]);
@@ -216,7 +216,6 @@ export default function Home() {
     if (imageSrc.heroMain !== prev.heroMain) updates.heroMain = true;
     if (imageSrc.heroDetail !== prev.heroDetail) updates.heroDetail = true;
     if (imageSrc.services !== prev.services) updates.services = true;
-    if (imageSrc.consultationVideo !== prev.consultationVideo) updates.consultationVideo = true;
     if (imageSrc.team !== prev.team) updates.team = true;
 
     if (Object.keys(updates).length > 0) {
@@ -224,6 +223,28 @@ export default function Home() {
     }
     prevImageSrc.current = imageSrc;
   }, [imageSrc]);
+
+  useEffect(() => {
+    const video = consultationVideoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!video) return;
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(video);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -240,7 +261,7 @@ export default function Home() {
             >
               <motion.h1
                 variants={fadeInUp}
-                className="text-4xl lg:text-5xl font-bold text-primary leading-tight"
+                className="text-3xl lg:text-4xl font-bold text-primary leading-tight"
               >
                 شركة {COMPANY_INFO.nameAr} متخصصة في تقديم منظومات جلوس عالية الجودة، مفصلة خصيصًا لأصحاب الهمم، بهدف تعزيز الاستقلالية وتحسين جودة الحياة.
               </motion.h1>
@@ -378,25 +399,16 @@ export default function Home() {
                 <p className="text-md">{CONSULTATION_DETAILS.requirements[0]}</p>
               </div>
 
-              <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl group cursor-pointer">
-                {imageLoading.consultationVideo && (
-                  <div className="absolute inset-0 z-10 bg-gradient-to-r from-muted via-muted/60 to-muted animate-pulse" />
-                )}
-                {imageSrc.consultationVideo && (
-                  <img
-                    src={imageSrc.consultationVideo}
-                    alt="Online Consultation Video"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    onLoad={() =>
-                      setImageLoading((current) => ({ ...current, consultationVideo: false }))
-                    }
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center animate-pulse">
-                    <Video className="w-10 h-10 text-white fill-white" />
-                  </div>
-                </div>
+              <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl">
+                <video
+                  ref={consultationVideoRef}
+                  className="w-full h-full object-cover"
+                  src={consultationVideo}
+                  controls
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
               </div>
 
               <Button
@@ -485,7 +497,7 @@ export default function Home() {
                 )}
                 {imageSrc.team && (
                   <img
-                    src={imageSrc.team}
+                    src={bookingImage}
                     alt="Team Member"
                     className="w-full h-64 object-cover rounded-3xl opacity-50 grayscale hover:grayscale-0 transition-all duration-500"
                     onLoad={() => setImageLoading((current) => ({ ...current, team: false }))}

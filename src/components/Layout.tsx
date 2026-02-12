@@ -5,8 +5,8 @@ import { SiInstagram, SiWhatsapp } from "react-icons/si";
 import { ROUTE_PATHS, COMPANY_INFO } from "@/lib/index";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import logo from "@/assets/logo.png";
+import bannerImage from "@/assets/01.jpg";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,8 +15,6 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
-  const [isBannerLoading, setIsBannerLoading] = useState(true);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -43,31 +41,6 @@ export function Layout({ children }: LayoutProps) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-    const loadBanner = async () => {
-      try {
-        const q = query(
-          collection(db, "site_images"),
-          where("key", "==", "BANNER_TOP")
-        );
-        const snap = await getDocs(q);
-        if (!isMounted) return;
-        const docData = snap.docs[0]?.data() as { url?: string } | undefined;
-        setBannerUrl(docData?.url ?? null);
-      } catch (err) {
-        console.error("Failed to load banner image:", err);
-      } finally {
-        if (isMounted) setIsBannerLoading(false);
-      }
-    };
-
-    loadBanner();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const navLinks = [
     { name: "خدماتنا", href: "#services" },
     { name: "الاستشارة المجانية", href: "#consultation" },
@@ -78,17 +51,11 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen flex flex-col font-sans" dir="rtl">
       <div className="w-full -mb-6">
         <div className="relative w-full">
-          {isBannerLoading && (
-            <div className="absolute inset-0 z-10 bg-gradient-to-r from-muted via-muted/60 to-muted animate-pulse" />
-          )}
-          {bannerUrl && (
-            <img
-              src={bannerUrl}
-              alt="Banner"
-              className="w-full h-[307px] md:h-[410px] lg:h-[512px] object-cover"
-              onLoad={() => setIsBannerLoading(false)}
-            />
-          )}
+          <img
+            src={bannerImage}
+            alt="Banner"
+            className="w-full h-[307px] md:h-[410px] lg:h-[512px] object-cover"
+          />
         </div>
       </div>
 
@@ -106,12 +73,11 @@ export function Layout({ children }: LayoutProps) {
             to={ROUTE_PATHS.HOME}
             className="flex items-center gap-2 group"
           >
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">G</span>
-            </div>
-            <span className="text-xl font-bold text-primary tracking-tight hidden sm:block">
-              {COMPANY_INFO.nameAr}
-            </span>
+            <img
+              src={logo}
+              alt={`${COMPANY_INFO.nameAr} Logo`}
+              className="h-14 w-auto"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">

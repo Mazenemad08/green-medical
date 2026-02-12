@@ -13,8 +13,8 @@ export const COMPANY_INFO = {
   name: "Green International Medical",
   nameAr: "جرين إنترناشيونال ميديكال",
   social: {
-    instagram: "https://instagram.com/green_medical",
-    whatsapp: "https://wa.me/1234567890",
+    instagram: "https://www.instagram.com/gimcompany.bh/",
+    whatsapp: "https://wa.me/97333305861",
   },
 } as const;
 
@@ -27,7 +27,7 @@ export const SERVICES_LIST = [
 ] as const;
 
 export const CONSULTATION_DETAILS = {
-  duration: "10 دقائق",
+  duration: "15 دقائق",
   requirements: [
     "يفضل أن يكون المستخدم جالسًا على أي منظومة جلوس متاحة أثناء التقييم",
     "يتم التقييم عبر فتح الكاميرا والتواصل المباشر مع المختص أونلاين",
