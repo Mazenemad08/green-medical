@@ -249,7 +249,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       {/* Intro */}
-      <section id="hero" className="relative pt-10 pb-14 lg:pt-28 lg:pb-24 overflow-hidden">
+      <section id="hero" className="relative pt-6 pb-14 lg:pt-28 lg:pb-24 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
