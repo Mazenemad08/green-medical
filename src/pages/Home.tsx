@@ -258,18 +258,33 @@ export default function Home() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="space-y-6 lg:space-y-8"
+              className="space-y-4 lg:space-y-6 max-w-xl"
             >
               <motion.h1
                 variants={fadeInUp}
-                className="text-4xl lg:text-4xl font-bold text-primary leading-tight"
+                className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-primary/90 leading-snug tracking-tight"
               >
-                شركة {COMPANY_INFO.nameAr} متخصصة في تقديم منظومات جلوس عالية الجودة، مفصلة خصيصًا لأصحاب الهمم، بهدف تعزيز الاستقلالية وتحسين جودة الحياة.
+                <span className="text-primary font-semibold">
+                  {COMPANY_INFO.nameAr}
+                </span>{" "}
+                تقدم{" "}
+                <span className="text-primary font-semibold">
+                  منظومات جلوس عالية الجودة
+                </span>{" "}
+                مصممة لأصحاب الهمم لتعزيز{" "}
+                <span className="text-primary font-semibold">
+                  الاستقلالية
+                </span>{" "}
+                وتحسين{" "}
+                <span className="text-primary font-semibold">
+                  جودة الحياة
+                </span>
+                .
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
-                className="text-lg text-muted-foreground leading-relaxed"
+                className="text-base sm:text-lg text-muted-foreground/90 leading-relaxed max-w-prose"
               >
                 اختيار الكرسي المناسب ليس رفاهية، بل خطوة أساسية لتحسين جودة الحياة وتعزيز الاستقلالية، ولذلك وفرنا لكم خدمة الاستشارة المجانية أونلاين، حيث يرافقكم المختص خطوة بخطوة ويشرح لكم الطريقة الصحيحة لأخذ المقاسات، حتى نتمكن من اختيار منظومة الجلوس الأنسب لكل حالة بدقة واهتمام.
               </motion.p>
