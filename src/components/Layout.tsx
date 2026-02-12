@@ -49,7 +49,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col font-sans" dir="rtl">
-      <div className="w-full -mb-2 sm:-mb-4">
+      <div className="w-full sm:-mb-2">
         <div className="relative w-full">
           <img
             src={bannerImage}
