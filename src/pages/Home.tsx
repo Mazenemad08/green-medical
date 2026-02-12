@@ -257,7 +257,7 @@ export default function Home() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="space-y-8"
+              className="space-y-6 lg:space-y-8"
             >
               <motion.h1
                 variants={fadeInUp}

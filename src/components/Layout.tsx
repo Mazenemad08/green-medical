@@ -54,7 +54,7 @@ export function Layout({ children }: LayoutProps) {
           <img
             src={bannerImage}
             alt="Banner"
-            className="w-full h-[307px] md:h-[410px] lg:h-[512px] object-cover"
+            className="w-full h-[220px] md:h-[360px] lg:h-[460px] object-cover"
           />
         </div>
       </div>
