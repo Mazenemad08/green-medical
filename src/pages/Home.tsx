@@ -232,7 +232,7 @@ export default function Home() {
       ([entry]) => {
         if (!video) return;
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         } else {
           video.pause();
         }
@@ -261,7 +261,7 @@ export default function Home() {
             >
               <motion.h1
                 variants={fadeInUp}
-                className="text-3xl lg:text-4xl font-bold text-primary leading-tight"
+                className="text-4xl lg:text-4xl font-bold text-primary leading-tight"
               >
                 شركة {COMPANY_INFO.nameAr} متخصصة في تقديم منظومات جلوس عالية الجودة، مفصلة خصيصًا لأصحاب الهمم، بهدف تعزيز الاستقلالية وتحسين جودة الحياة.
               </motion.h1>
