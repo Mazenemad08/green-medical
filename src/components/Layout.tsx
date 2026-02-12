@@ -131,7 +131,7 @@ export function Layout({ children }: LayoutProps) {
 
       </header>
 
-      <main className="flex-grow pt-2 sm:pt-[var(--header-height)]">
+      <main className="flex-grow pt-4 sm:pt-[var(--header-height)]">
         {children}
       </main>
 

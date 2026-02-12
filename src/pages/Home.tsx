@@ -168,6 +168,7 @@ export default function Home() {
     services: true,
     team: true,
   });
+  const [isCalendarLoading, setIsCalendarLoading] = useState(true);
   const consultationVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -249,7 +250,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       {/* Intro */}
-      <section id="hero" className="relative pt-0 pb-14 lg:pt-28 lg:pb-24 overflow-hidden">
+      <section id="hero" className="relative pt-2 pb-14 lg:pt-28 lg:pb-24 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -441,12 +442,18 @@ export default function Home() {
               </div>
 
               <div className="bg-white rounded-3xl p-4 shadow-2xl text-foreground">
+                {isCalendarLoading && (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="h-10 w-10 rounded-full border-4 border-accent/30 border-t-accent animate-spin" />
+                  </div>
+                )}
                 <iframe
                   src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0zCcIWVH9hx6GdhTqI2Q-ruUuPJ2iJu63ABiX5LSJCwdirioM79-oW4k_vSb_V9__sUdbm5KFT?gv=true"
                   className="w-full rounded-2xl"
                   style={{ border: 0, minHeight: "800px" }}
                   title="حجز موعد"
                   loading="lazy"
+                  onLoad={() => setIsCalendarLoading(false)}
                 />
               </div>
             </motion.div>
