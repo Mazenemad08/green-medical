@@ -18,7 +18,7 @@ import * as z from "zod";
 import { IMAGES } from "@/assets/images";
 import heroMainImage from "@/assets/02.jpg";
 import heroDetailImage from "@/assets/03.jpg";
-import consultationVideo from "@/assets/horisntal.mp4";
+import consultationVideo from "@/assets/horisntal.web.mp4";
 import bookingImage from "@/assets/03.jpg";
 import {
   SERVICES_LIST,
